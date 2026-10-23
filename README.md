@@ -1,7 +1,7 @@
 # MacroQuest
 
 This branch is the talk's starting point. MacroQuest is an Angular meal log
-with a CopilotKit chat and a local Gemma 4 model server. The meal log lives in
+with a CopilotKit chat using OpenRouter. The meal log lives in
 one service. The agent answers questions from a system prompt. The meal-log
 snapshot is not attached yet.
 The later beats (a frontend tool, human in the loop, A2UI, and Open Generative
@@ -15,99 +15,27 @@ Install the dependencies via pnpm:
 pnpm install
 ```
 
-Install llama.cpp to run the local Gemma 4 model server:
-
-```bash
-brew install llama.cpp
-```
-
-Download the Gemma 4 model weights by starting llama.cpp:
-
-```bash
-pnpm run start:llama
-```
-
-The script defaults to the Unsloth Gemma 4 26B-A4B MoE QAT GGUF on Hugging Face.
-On first run, `llama-server` downloads weights into the normal Hugging Face cache
-when they are not already present:
-
-```bash
-llama-server \
-  --hf-repo unsloth/gemma-4-26B-A4B-it-qat-GGUF \
-  --hf-file gemma-4-26B-A4B-it-qat-UD-Q4_K_XL.gguf \
-  --alias gemma-4-26b-a4b-it-qat \
-  --host 127.0.0.1 \
-  --port 8080
-```
-
-To use a GGUF you already have on disk instead of downloading from Hugging Face:
-
-```bash
-LLAMA_MODEL=/path/to/your-model.gguf \
-LLAMA_MMPROJ_PATH=/path/to/mmproj-F16.gguf \
-LLAMA_ALIAS=your-model-alias \
-pnpm run start:llama
-```
-
-`LLAMA_MMPROJ_PATH` is only needed for the local-file override when you want
-meal-photo vision. The default Hugging Face path uses `--mmproj-auto`.
-
-If Hugging Face requires authentication for a selected repo or file, export
-`HF_TOKEN` before starting the server.
+Set your OpenRouter API key in `.env` (gitignored). If you do not already
+have an `.env` file, copy `.env.example` and fill in `OPENROUTER_API_KEY`.
+Optionally set `OPENROUTER_MODEL`; the runtime defaults to `google/gemini-2.5-pro`.
 
 ## Start everything
 
-Run llama.cpp, the CopilotKit runtime, and the Angular app in one terminal:
+Run the CopilotKit runtime and Angular app:
 
 ```bash
 pnpm run start:all
 ```
 
-Then open `http://127.0.0.1:4302`. Ctrl+C stops all three processes.
-
-You can still start them separately with `pnpm run start:llama`,
-`pnpm run start:runtime`, and `pnpm run start:ui`.
-
-## OpenRouter (same chat agent, remote model)
-
-The chat agent runs for both local llama.cpp and OpenRouter. Switching provider
-only changes which OpenAI-compatible `/chat/completions` endpoint is called.
-
-Set your key and model in `.env` (gitignored):
-
-```bash
-cp .env.example .env
-# edit .env — set OPENROUTER_API_KEY and optionally OPENROUTER_MODEL
-```
-
-Then run:
-
-```bash
-pnpm run start:all:openrouter
-```
-
-Relevant variables:
-
-| Variable                 | Purpose                                    |
-| ------------------------ | ------------------------------------------ |
-| `COPILOT_MODEL_PROVIDER` | `local` or `openrouter`                    |
-| `OPENROUTER_API_KEY`     | Your OpenRouter API key                    |
-| `OPENROUTER_MODEL`       | Model id (default `google/gemini-2.5-pro`) |
-
-With `COPILOT_MODEL_PROVIDER=openrouter`, the same chat agent answers. No local
-llama server is required.
+Open `http://localhost:4200`. Ctrl+C stops both processes.
+You can also start them separately with `pnpm run start:runtime` and
+`pnpm run start:ui`.
 
 ## Runtime
 
 ```bash
-LOCAL_MODEL_BASE_URL=http://127.0.0.1:8080/v1 \
-LOCAL_MODEL_NAME=gemma-4-26b-a4b-it-qat \
-LOCAL_MODEL_API_KEY=local-llama \
 pnpm run start:runtime
 ```
-
-The runtime also defaults to these Gemma 4 settings, so the explicit env vars
-are mainly documentation and useful when switching ports.
 
 The runtime is a local Hono wrapper around `@copilotkit/runtime/v2`. Each run
 streams a chat reply from the system prompt. The meal-log snapshot is not
@@ -119,7 +47,7 @@ attached yet.
 pnpm run start:ui
 ```
 
-Open `http://127.0.0.1:4302`.
+Open `http://localhost:4200`.
 
 ## Talk
 
@@ -153,10 +81,4 @@ Run the browser integration test:
 
 ```bash
 pnpm run test:integration
-```
-
-Print the model server command without downloading:
-
-```
-pnpm run start:llama -- --dry-run
 ```
