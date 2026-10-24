@@ -106,7 +106,7 @@ export class MacroQuestStore {
     });
 
     registerHumanInTheLoop({
-      name: 'add meal to meal log',
+      name: 'add_meal_to_meal_log',
       description: 'Adds a new meal to the current meal log',
       parameters: mealDraftSchema,
       component: MealDraftConfirmation,

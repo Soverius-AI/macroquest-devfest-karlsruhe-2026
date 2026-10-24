@@ -16,7 +16,7 @@ export const agent = new BuiltInAgent({
   maxSteps: 3,
   tools: [
     defineTool({
-      name: 'analyze meal',
+      name: 'analyze_meal',
       description:
         'when the user uploads an image, analye the nutrition of that meal and return to the user',
       parameters: z.object({ description: z.string() }),

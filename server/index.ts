@@ -47,6 +47,7 @@ app.get('/health', (c) =>
 
 const runtime = new CopilotRuntime({
   agents: { default: agent },
+  a2ui: { enabled: true },
   runner: new InMemoryAgentRunner(),
 });
 
